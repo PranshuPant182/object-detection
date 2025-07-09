@@ -150,7 +150,7 @@ const ObjectDetection = () => {
 
       const predictions = await net.detect(video);
       const ctx = canvasRef.current.getContext("2d");
-      renderPredictions(predictions, ctx, facingMode === "user");
+      renderPredictions(predictions, ctx);
     }
   }, []);
 
