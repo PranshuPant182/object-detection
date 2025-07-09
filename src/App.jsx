@@ -128,44 +128,144 @@ import { load as cocoSSDLoad } from "@tensorflow-models/coco-ssd";
 import * as tf from "@tensorflow/tfjs";
 import { renderPredictions } from "./utils/render-predictions";
 
+let detectInterval;
+
 const ObjectDetection = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [facingMode, setFacingMode] = useState("user");
+  const [facingMode, setFacingMode] = useState("user"); // front camera by default
 
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
-  const modelRef = useRef(null);
-  const detectIntervalRef = useRef(null);
 
-  const runObjectDetection = useCallback(async () => {
-    const net = modelRef.current;
+  // const runCoco = useCallback(async () => {
+  //   setIsLoading(true);
+  //   const net = await cocoSSDLoad();
+  //   setIsLoading(false);
+
+  //   detectInterval = setInterval(() => {
+  //     runObjectDetection(net);
+  //   }, 10);
+  // }, []);
+
+  // const runCoco = useCallback(async () => {
+  //   setIsLoading(true);
+  //   const net = await cocoSSDLoad({
+  //     modelUrl: 'https://storage.googleapis.com/tfjs-models/savedmodel/ssd_mobilenet_v1/model.json',
+  //   });
+  //   setIsLoading(false);
+
+  //   detectInterval = setInterval(() => {
+  //     runObjectDetection(net);
+  //   }, 10);
+  // }, []);
+
+  //   const runCoco = useCallback(async () => {
+  //   setIsLoading(true);
+  //     const net = await cocoSSDLoad({ modelUrl: '/models/airplane/model.json' });
+
+  //   setIsLoading(false);
+
+  //   detectInterval = setInterval(() => {
+  //     runObjectDetection(net);
+  //   }, 10);
+  // }, []);
+
+  const runCoco = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const model = await tf.loadGraphModel("/models/airplane/model.json");
+      setIsLoading(false);
+
+      detectInterval = setInterval(() => {
+        runObjectDetection(model);
+      }, 200); // 5 FPS is more realistic and stable
+    } catch (err) {
+      console.error("Model load error", err);
+      setIsLoading(false);
+    }
+  }, []);
+
+
+  const runObjectDetection = async (model) => {
     if (
-      net &&
       canvasRef.current &&
       webcamRef.current?.video?.readyState === 4
     ) {
       const video = webcamRef.current.video;
-      canvasRef.current.width = video.videoWidth;
-      canvasRef.current.height = video.videoHeight;
+      const videoWidth = video.videoWidth;
+      const videoHeight = video.videoHeight;
 
-      const predictions = await net.detect(video);
-      const ctx = canvasRef.current.getContext("2d");
-      renderPredictions(predictions, ctx);
+      canvasRef.current.width = videoWidth;
+      canvasRef.current.height = videoHeight;
+
+      const inputTensor = tf.tidy(() =>
+        tf.browser.fromPixels(video)
+          .resizeBilinear([320, 320])
+          .toFloat()
+          .div(255.0)
+          .expandDims(0)
+      );
+
+      try {
+        const output = await model.executeAsync(inputTensor); // a single tensor
+
+        const data = await output.array(); // shape: [1, 12, 2100]
+        const raw = data[0]; // shape: [12, 2100]
+        const boxes = [];
+
+        for (let i = 0; i < 2100; i++) {
+          const x = raw[0][i];
+          const y = raw[1][i];
+          const w = raw[2][i];
+          const h = raw[3][i];
+
+          const scores = raw.slice(4).map(cls => cls[i]);
+          const maxScore = Math.max(...scores);
+          const classId = scores.indexOf(maxScore);
+
+          if (maxScore > 0.5) {
+            const centerX = x * videoWidth;
+            const centerY = y * videoHeight;
+            const boxWidth = w * videoWidth;
+            const boxHeight = h * videoHeight;
+
+            boxes.push({
+              bbox: [
+                centerX - boxWidth / 2,
+                centerY - boxHeight / 2,
+                boxWidth,
+                boxHeight
+              ],
+              class: `Class ${classId}`,
+              score: maxScore
+            });
+          }
+        }
+
+        renderPredictions(boxes, canvasRef.current.getContext("2d"));
+        output.dispose();
+      } catch (e) {
+        console.error("Detection error", e);
+      } finally {
+        inputTensor.dispose();
+      }
     }
-  }, []);
+  };
 
-  const runCoco = useCallback(async () => {
-    setIsLoading(true);
 
-    const net = await cocoSSDLoad({
-      modelUrl: "/models/coco-ssd/model.json", // Local model in public/
-    });
 
-    modelRef.current = net;
-    setIsLoading(false);
 
-    detectIntervalRef.current = setInterval(runObjectDetection, 100); // ~10 FPS
-  }, [runObjectDetection]);
+  const showmyVideo = () => {
+    if (
+      webcamRef.current !== null &&
+      webcamRef.current.video?.readyState === 4
+    ) {
+      const width = webcamRef.current.video.videoWidth;
+      const height = webcamRef.current.video.videoHeight;
+      webcamRef.current.video.width = width;
+      webcamRef.current.video.height = height;
+    }
+  };
 
   const toggleFacingMode = () => {
     setFacingMode((prev) => (prev === "user" ? "environment" : "user"));
@@ -173,13 +273,16 @@ const ObjectDetection = () => {
 
   useEffect(() => {
     runCoco();
+    showmyVideo();
 
     return () => {
-      clearInterval(detectIntervalRef.current);
+      clearInterval(detectInterval);
     };
-  }, [facingMode, runCoco]);
+  }, [facingMode]); // re-run when camera is flipped
 
-  const videoConstraints = { facingMode };
+  const videoConstraints = {
+    facingMode: facingMode,
+  };
 
   return (
     <div className="fixed inset-0 z-0 bg-black">
@@ -193,7 +296,7 @@ const ObjectDetection = () => {
             ref={webcamRef}
             className="w-full h-full object-cover"
             videoConstraints={videoConstraints}
-            mirrored={facingMode === "user"}
+            mirrored={facingMode === "user"} // mirror front cam for natural view
             audio={false}
             muted
           />
