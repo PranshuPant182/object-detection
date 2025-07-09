@@ -1,31 +1,31 @@
 "use client";
 
-import React, {useEffect, useRef, useState} from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import Webcam from "react-webcam";
-import {load as cocoSSDLoad} from "@tensorflow-models/coco-ssd";
+import { load as cocoSSDLoad } from "@tensorflow-models/coco-ssd";
 import * as tf from "@tensorflow/tfjs";
 import { renderPredictions } from "./utils/render-predictions";
-
 
 let detectInterval;
 
 const ObjectDetection = () => {
   const [isLoading, setIsLoading] = useState(true);
+  const [facingMode, setFacingMode] = useState("user"); // front camera by default
 
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
 
-  async function runCoco() {
-    setIsLoading(true); // Set loading state to true when model loading starts
+  const runCoco = useCallback(async () => {
+    setIsLoading(true);
     const net = await cocoSSDLoad();
-    setIsLoading(false); // Set loading state to false when model loading completes
+    setIsLoading(false);
 
     detectInterval = setInterval(() => {
-      runObjectDetection(net); // will build this next
+      runObjectDetection(net);
     }, 10);
-  }
+  }, []);
 
-  async function runObjectDetection(net) {
+  const runObjectDetection = async (net) => {
     if (
       canvasRef.current &&
       webcamRef.current !== null &&
@@ -34,55 +34,67 @@ const ObjectDetection = () => {
       canvasRef.current.width = webcamRef.current.video.videoWidth;
       canvasRef.current.height = webcamRef.current.video.videoHeight;
 
-      // find detected objects
-      const detectedObjects = await net.detect(
-        webcamRef.current.video,
-        undefined,
-        0.6
-      );
-
-      //   console.log(detectedObjects);
-
+      const detectedObjects = await net.detect(webcamRef.current.video);
       const context = canvasRef.current.getContext("2d");
       renderPredictions(detectedObjects, context);
     }
-  }
+  };
 
   const showmyVideo = () => {
     if (
       webcamRef.current !== null &&
       webcamRef.current.video?.readyState === 4
     ) {
-      const myVideoWidth = webcamRef.current.video.videoWidth;
-      const myVideoHeight = webcamRef.current.video.videoHeight;
-
-      webcamRef.current.video.width = myVideoWidth;
-      webcamRef.current.video.height = myVideoHeight;
+      const width = webcamRef.current.video.videoWidth;
+      const height = webcamRef.current.video.videoHeight;
+      webcamRef.current.video.width = width;
+      webcamRef.current.video.height = height;
     }
+  };
+
+  const toggleFacingMode = () => {
+    setFacingMode((prev) => (prev === "user" ? "environment" : "user"));
   };
 
   useEffect(() => {
     runCoco();
     showmyVideo();
-  }, []);
+
+    return () => {
+      clearInterval(detectInterval);
+    };
+  }, [facingMode]); // re-run when camera is flipped
+
+  const videoConstraints = {
+    facingMode: facingMode,
+  };
 
   return (
-    <div className="mt-8">
+    <div className="fixed inset-0 z-0 bg-black">
       {isLoading ? (
-        <div className="gradient-text">Loading AI Model...</div>
+        <div className="text-white text-center text-xl mt-4">
+          Loading AI Model...
+        </div>
       ) : (
-        <div className="relative flex justify-center items-center gradient p-1.5 rounded-md">
-          {/* webcam */}
+        <div className="relative w-full h-full">
           <Webcam
             ref={webcamRef}
-            className="rounded-md w-full lg:h-[720px]"
+            className="w-full h-full object-cover"
+            videoConstraints={videoConstraints}
+            mirrored={facingMode === "user"} // mirror front cam for natural view
+            audio={false}
             muted
           />
-          {/* canvas */}
           <canvas
             ref={canvasRef}
-            className="absolute top-0 left-0 z-99999 w-full lg:h-[720px]"
+            className="absolute top-0 left-0 w-full h-full z-10"
           />
+          <button
+            onClick={toggleFacingMode}
+            className="absolute bottom-4 right-4 z-20 px-4 py-2 bg-white text-black rounded-md shadow-md"
+          >
+            Flip Camera
+          </button>
         </div>
       )}
     </div>
