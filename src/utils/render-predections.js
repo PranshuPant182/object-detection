@@ -368,11 +368,11 @@ export const renderPredictions = (outputTensor, ctx, canvasWidth, canvasHeight) 
 
   const detectedObjects = [];
 
-  console.log("🔍 Total Raw Predictions:", predictions.length);
-  console.log("🎯 Confidence Threshold:", confidenceThreshold);
+  // console.log("🔍 Total Raw Predictions:", predictions.length);
+  // console.log("🎯 Confidence Threshold:", confidenceThreshold);
 
   // Debug: Check first few predictions
-  console.log("📊 First 5 predictions structure:");
+  // console.log("📊 First 5 predictions structure:");
   predictions.slice(0, 5).forEach((pred, i) => {
     if (Array.isArray(pred) && pred.length >= 5) {
       console.log(`Prediction ${i}:`, {
@@ -467,39 +467,39 @@ export const renderPredictions = (outputTensor, ctx, canvasWidth, canvasHeight) 
 
       detectedObjects.push(detection);
 
-      console.log(`✅ Detection ${detectedObjects.length}:`, {
-        className,
-        confidence: finalConfidence.toFixed(6),
-        objConf: objConf.toFixed(6),
-        maxClassScore: maxClassScore.toFixed(6),
-        bbox: detection.bbox
-      });
+      // console.log(`✅ Detection ${detectedObjects.length}:`, {
+      //   className,
+      //   confidence: finalConfidence.toFixed(6),
+      //   objConf: objConf.toFixed(6),
+      //   maxClassScore: maxClassScore.toFixed(6),
+      //   bbox: detection.bbox
+      // });
     } else {
       filteredByConfidence++;
     }
   });
 
-  console.log(`📈 Statistics:`, {
-    totalPredictions: predictions.length,
-    validPredictions,
-    filteredByConfidence,
-    detectedObjects: detectedObjects.length
-  });
+  // console.log(`📈 Statistics:`, {
+  //   totalPredictions: predictions.length,
+  //   validPredictions,
+  //   filteredByConfidence,
+  //   detectedObjects: detectedObjects.length
+  // });
 
   // Apply NMS with a more lenient threshold
   const nmsDetections = applyNMSRender(detectedObjects, 0.5);
 
-  console.log("🎯 Detections after NMS:", nmsDetections.length);
-  nmsDetections.forEach((det, i) => {
-    console.log(`→ Final ${i + 1}:`, {
-      className: det.className,
-      confidence: det.confidence.toFixed(6),
-      bbox: det.bbox
-    });
-  });
+  // console.log("🎯 Detections after NMS:", nmsDetections.length);
+  // nmsDetections.forEach((det, i) => {
+  //   console.log(`→ Final ${i + 1}:`, {
+  //     className: det.className,
+  //     confidence: det.confidence.toFixed(6),
+  //     bbox: det.bbox
+  //   });
+  // });
 
   // Enhanced rendering with better visibility
-  const colors = ['#04d9d9'];
+  const colors = ['#25e6bf'];
 
   nmsDetections.forEach((detection, index) => {
     const { left, top, boxWidth, boxHeight, className, confidence } = detection;
@@ -519,7 +519,7 @@ export const renderPredictions = (outputTensor, ctx, canvasWidth, canvasHeight) 
 
     // Draw label background
     ctx.fillStyle = color;
-    ctx.font = "bold 12px Arial";
+    ctx.font = "bold 10px Arial";
     const textMetrics = ctx.measureText(label);
     const textWidth = textMetrics.width;
     const textHeight = 18;
@@ -532,12 +532,6 @@ export const renderPredictions = (outputTensor, ctx, canvasWidth, canvasHeight) 
     // Draw text
     ctx.fillStyle = "#000000";
     ctx.fillText(label, clampedLeft + 5, labelTop + textHeight);
-
-    // Add a small circle at the center
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.arc(clampedLeft + clampedWidth / 2, clampedTop + clampedHeight / 2, 3, 0, 2 * Math.PI);
-    ctx.fill();
   });
 
   // Return detection results for the component
@@ -551,18 +545,18 @@ const applyNMSRender = (detections, iouThreshold) => {
   const sortedDetections = [...detections].sort((a, b) => b.confidence - a.confidence);
   const keepDetections = [];
 
-  console.log(`🔄 Starting NMS with ${sortedDetections.length} detections, IoU threshold: ${iouThreshold}`);
+  // console.log(`🔄 Starting NMS with ${sortedDetections.length} detections, IoU threshold: ${iouThreshold}`);
 
   while (sortedDetections.length > 0) {
     const current = sortedDetections.shift();
     keepDetections.push(current);
 
-    console.log(`✅ Keeping detection: ${current.className} (${current.confidence.toFixed(6)})`);
+    // console.log(`✅ Keeping detection: ${current.className} (${current.confidence.toFixed(6)})`);
 
     for (let i = sortedDetections.length - 1; i >= 0; i--) {
       const iou = calculateIoURender(current.bbox, sortedDetections[i].bbox);
       if (iou > iouThreshold) {
-        console.log(`❌ Suppressing detection: ${sortedDetections[i].className} (IoU: ${iou.toFixed(3)})`);
+        // console.log(`❌ Suppressing detection: ${sortedDetections[i].className} (IoU: ${iou.toFixed(3)})`);
         sortedDetections.splice(i, 1);
       }
     }
