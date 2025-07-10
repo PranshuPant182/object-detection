@@ -499,7 +499,7 @@ export const renderPredictions = (outputTensor, ctx, canvasWidth, canvasHeight) 
   });
 
   // Enhanced rendering with better visibility
-  const colors = ['#00FFFF', '#FF00FF', '#FFFF00', '#FF6600', '#00FF00', '#FF0000', '#0000FF', '#FF69B4'];
+  const colors = ['#04d9d9'];
 
   nmsDetections.forEach((detection, index) => {
     const { left, top, boxWidth, boxHeight, className, confidence } = detection;
