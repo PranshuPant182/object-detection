@@ -1160,112 +1160,425 @@
 
 // export default ObjectDetection;
 
+
+
+
+
+
+
+
+
+
+// WORKING ON GEENRAL LOADED MODEL 
+// "use client";
+
+// import React, { useEffect, useRef, useState } from "react";
+// import Webcam from "react-webcam";
+// import * as tf from "@tensorflow/tfjs";
+// import { renderPredictions } from "./utils/render-predections";
+
+// let detectInterval;
+
+// const ObjectDetection = () => {
+//   const [isLoading, setIsLoading] = useState(true);
+//   const [facingMode, setFacingMode] = useState("user"); // "user" or "environment"
+
+//   const webcamRef = useRef(null);
+//   const canvasRef = useRef(null);
+
+//   const videoConstraints = {
+//     facingMode: facingMode === "user" ? "user" : { exact: "environment" },
+//     width: { ideal: 1920 },
+//     height: { ideal: 1080 },
+//   };
+
+//   const toggleCamera = () => {
+//     setFacingMode((prev) => (prev === "user" ? "environment" : "user"));
+//   };
+
+//   async function runModel() {
+//     setIsLoading(true);
+//     const model = await tf.loadGraphModel("/models/yolo/model.json");
+//     setIsLoading(false);
+
+//     detectInterval = setInterval(() => {
+//       runObjectDetection(model);
+//     }, 100);
+//   }
+
+//   async function runObjectDetection(model) {
+//     if (
+//       !canvasRef.current ||
+//       !webcamRef.current ||
+//       webcamRef.current.video?.readyState !== 4
+//     ) return;
+
+//     const video = webcamRef.current.video;
+//     const canvas = canvasRef.current;
+
+//     if (!canvas.width || !canvas.height) {
+//       canvas.width = video.videoWidth;
+//       canvas.height = video.videoHeight;
+//     }
+
+//     try {
+//       const inputTensor = tf.tidy(() =>
+//         tf.browser
+//           .fromPixels(video)
+//           .resizeBilinear([320, 320])
+//           .div(255.0)
+//           .expandDims(0)
+//       );
+
+//       const outputTensor = model.execute(inputTensor);
+
+//       const context = canvas.getContext("2d");
+//       context.clearRect(0, 0, canvas.width, canvas.height);
+
+//       await renderPredictions(outputTensor, context, canvas.width, canvas.height);
+//       tf.dispose([inputTensor, outputTensor]);
+//     } catch (error) {
+//       console.error("❌ Error during detection:", error);
+//     }
+//   }
+
+//   useEffect(() => {
+//     runModel();
+//     return () => clearInterval(detectInterval); // Cleanup on unmount
+//   }, []);
+
+//   useEffect(() => {
+//     if (webcamRef.current?.video?.readyState === 4) {
+//       webcamRef.current.video.width = webcamRef.current.video.videoWidth;
+//       webcamRef.current.video.height = webcamRef.current.video.videoHeight;
+//     }
+//   }, [facingMode]);
+
+//   return (
+//     <div className="relative w-screen h-screen overflow-hidden">
+//       {isLoading ? (
+//         <div className="text-center text-xl text-white mt-10">Loading AI Model...</div>
+//       ) : (
+//         <>
+//           <Webcam
+//             ref={webcamRef}
+//             videoConstraints={videoConstraints}
+//             className="absolute top-0 left-0 w-full h-full object-cover"
+//             muted
+//           />
+//           <canvas
+//             ref={canvasRef}
+//             className="absolute top-0 left-0 w-full h-full z-10"
+//           />
+//           <button
+//             onClick={toggleCamera}
+//             className="absolute top-4 right-4 z-20 bg-black bg-opacity-50 text-black px-4 py-2 rounded-md hover:bg-opacity-70"
+//           >
+//             Flip Camera
+//           </button>
+//         </>
+//       )}
+//     </div>
+//   );
+// };
+
+// export default ObjectDetection;
+
+
+
+
+// DETECTION ON AIRPLANE USING IMAGE
+// "use client";
+
+// import React, { useRef, useState, useEffect } from "react";
+// import * as tf from "@tensorflow/tfjs";
+// import { renderPredictions } from "./utils/render-predections";
+
+// const ObjectDetection = () => {
+//   const [isLoading, setIsLoading] = useState(true);
+//   const [modelLoaded, setModelLoaded] = useState(false);
+//   const [detectionResults, setDetectionResults] = useState([]);
+//   const imageCanvasRef = useRef(null); // Canvas for detection
+//   const imageRef = useRef(null);       // Image element
+//   const modelRef = useRef(null);       // Loaded model
+
+//   const runModel = async () => {
+//     try {
+//       setIsLoading(true);
+//       console.log("🔄 Loading model...");
+
+//       // Load the model
+//       modelRef.current = await tf.loadGraphModel("/models/airplane/model.json");
+
+//       console.log("📦 Model loaded successfully");
+//       console.log("📦 Model input shape:", modelRef.current.inputs[0].shape);
+
+//       // Check if outputs exist before accessing
+//       if (modelRef.current.outputs && modelRef.current.outputs.length > 0) {
+//         console.log("📤 Model output shape (from metadata):", modelRef.current.outputs[0].shape);
+//       }
+
+//       setModelLoaded(true);
+//       setIsLoading(false);
+//     } catch (err) {
+//       console.error("❌ Error loading model:", err);
+//       setIsLoading(false);
+//     }
+//   };
+
+//   const handleImageUpload = async (e) => {
+//     const file = e.target.files[0];
+//     if (!file || !modelLoaded) return;
+
+//     const img = new Image();
+//     img.src = URL.createObjectURL(file);
+//     img.onload = async () => {
+//       imageRef.current = img;
+
+//       const canvas = imageCanvasRef.current;
+//       canvas.width = img.width;
+//       canvas.height = img.height;
+
+//       const ctx = canvas.getContext("2d");
+//       ctx.clearRect(0, 0, canvas.width, canvas.height);
+//       ctx.drawImage(img, 0, 0);
+
+//       try {
+//         console.log("🔍 Starting detection...");
+
+//         const inputTensor = tf.tidy(() => {
+//           const t = tf.browser
+//             .fromPixels(img)
+//             .resizeBilinear([320, 320])
+//             .div(255.0)
+//             .expandDims(0); // shape: [1, 320, 320, 3]
+//           console.log("📸 Input Tensor shape:", t.shape);
+//           console.log("📸 Input Tensor min/max:", t.min().dataSync()[0], t.max().dataSync()[0]);
+//           return t;
+//         });
+
+//         const model = modelRef.current;
+//         console.log("🤖 Running model inference...");
+//         const outputTensor = model.execute(inputTensor);
+
+//         console.log("📤 Model output shape:", outputTensor.shape);
+
+//         // Get the raw output data for debugging
+//         const outputData = outputTensor.arraySync();
+//         console.log("📊 Raw output data sample:", outputData[0].slice(0, 5).map(row => row.slice(0, 5)));
+
+//         const results = await renderPredictions(outputTensor, ctx, img.width, img.height);
+//         setDetectionResults(results || []);
+
+//         tf.dispose([inputTensor, outputTensor]);
+//       } catch (error) {
+//         console.error("❌ Error during image detection:", error);
+//       }
+//     };
+//   };
+
+//   useEffect(() => {
+//     runModel();
+//   }, []);
+
+//   return (
+//     <div className="relative w-screen h-screen overflow-hidden bg-gray-900">
+//       {isLoading ? (
+//         <div className="flex flex-col items-center justify-center h-full text-white">
+//           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mb-4"></div>
+//           <div className="text-xl">Loading AI Model...</div>
+//           <div className="text-sm text-gray-400 mt-2">Please wait while the model loads</div>
+//         </div>
+//       ) : !modelLoaded ? (
+//         <div className="flex flex-col items-center justify-center h-full text-white">
+//           <div className="text-xl text-red-500">❌ Model Failed to Load</div>
+//           <div className="text-sm text-gray-400 mt-2">Check console for details</div>
+//         </div>
+//       ) : (
+//         <>
+//           <div className="absolute top-4 left-4 z-20 space-y-2">
+//             <input
+//               type="file"
+//               accept="image/*"
+//               onChange={handleImageUpload}
+//               className="block bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md cursor-pointer"
+//             />
+//             <div className="text-white text-sm">
+//               Model Status: ✅ Ready
+//             </div>
+//             {detectionResults.length > 0 && (
+//               <div className="bg-black bg-opacity-50 text-white p-2 rounded-md max-w-xs">
+//                 <div className="font-bold">Detections: {detectionResults.length}</div>
+//                 {detectionResults.slice(0, 3).map((det, i) => (
+//                   <div key={i} className="text-xs">
+//                     {det.className}: {(det.confidence * 100).toFixed(1)}%
+//                   </div>
+//                 ))}
+//               </div>
+//             )}
+//           </div>
+//           <canvas
+//             ref={imageCanvasRef}
+//             className="absolute top-20 left-4 border-2 border-white z-10 max-w-[calc(100vw-2rem)] max-h-[calc(100vh-6rem)]"
+//             style={{
+//               objectFit: 'contain',
+//               backgroundColor: 'rgba(0,0,0,0.1)'
+//             }}
+//           />
+//         </>
+//       )}
+//     </div>
+//   );
+// };
+
+// export default ObjectDetection;
+
+
+
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
-import Webcam from "react-webcam";
+import React, { useRef, useState, useEffect } from "react";
 import * as tf from "@tensorflow/tfjs";
 import { renderPredictions } from "./utils/render-predections";
 
-let detectInterval;
-
 const ObjectDetection = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [facingMode, setFacingMode] = useState("user"); // "user" or "environment"
-
-  const webcamRef = useRef(null);
+  const [modelLoaded, setModelLoaded] = useState(false);
+  const [detectionResults, setDetectionResults] = useState([]);
+  const [facingMode, setFacingMode] = useState("user"); // 🔁 default: back camera
+  const videoRef = useRef(null);
   const canvasRef = useRef(null);
+  const modelRef = useRef(null);
+  const animationFrameRef = useRef(null);
+  const streamRef = useRef(null); // 🔁 store current media stream
 
-  const videoConstraints = {
-    facingMode: facingMode === "user" ? "user" : { exact: "environment" },
-    width: { ideal: 1920 },
-    height: { ideal: 1080 },
-  };
-
-  const toggleCamera = () => {
-    setFacingMode((prev) => (prev === "user" ? "environment" : "user"));
-  };
-
-  async function runModel() {
-    setIsLoading(true);
-    const model = await tf.loadGraphModel("/models/yolo/model.json");
-    setIsLoading(false);
-
-    detectInterval = setInterval(() => {
-      runObjectDetection(model);
-    }, 100);
-  }
-
-  async function runObjectDetection(model) {
-    if (
-      !canvasRef.current ||
-      !webcamRef.current ||
-      webcamRef.current.video?.readyState !== 4
-    ) return;
-
-    const video = webcamRef.current.video;
-    const canvas = canvasRef.current;
-
-    if (!canvas.width || !canvas.height) {
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-    }
-
+  const runModel = async () => {
     try {
-      const inputTensor = tf.tidy(() =>
-        tf.browser
-          .fromPixels(video)
-          .resizeBilinear([320, 320])
-          .div(255.0)
-          .expandDims(0)
-      );
-
-      const outputTensor = model.execute(inputTensor);
-
-      const context = canvas.getContext("2d");
-      context.clearRect(0, 0, canvas.width, canvas.height);
-
-      await renderPredictions(outputTensor, context, canvas.width, canvas.height);
-      tf.dispose([inputTensor, outputTensor]);
-    } catch (error) {
-      console.error("❌ Error during detection:", error);
+      console.log("🔄 Loading model...");
+      modelRef.current = await tf.loadGraphModel("/models/airplane/model.json");
+      console.log("📦 Model loaded successfully");
+      setModelLoaded(true);
+      setIsLoading(false);
+    } catch (err) {
+      console.error("❌ Error loading model:", err);
+      setIsLoading(false);
     }
-  }
+  };
+
+  const setupWebcam = async () => {
+    if (streamRef.current) {
+      // Stop existing stream before switching camera
+      streamRef.current.getTracks().forEach((track) => track.stop());
+    }
+
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: facingMode, // 🔁 dynamic facingMode
+      },
+      audio: false,
+    });
+
+    videoRef.current.srcObject = stream;
+    streamRef.current = stream;
+
+    await new Promise((resolve) => {
+      videoRef.current.onloadedmetadata = () => {
+        resolve();
+      };
+    });
+
+    videoRef.current.play();
+  };
+
+  const detectFrame = async () => {
+    if (!videoRef.current || !modelRef.current) return;
+
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    const inputTensor = tf.tidy(() =>
+      tf.browser
+        .fromPixels(video)
+        .resizeBilinear([320, 320])
+        .div(255.0)
+        .expandDims(0)
+    );
+
+    const model = modelRef.current;
+    const outputTensor = model.execute(inputTensor);
+    const results = await renderPredictions(outputTensor, ctx, canvas.width, canvas.height);
+
+    setDetectionResults(results || []);
+    tf.dispose([inputTensor, outputTensor]);
+
+    animationFrameRef.current = requestAnimationFrame(detectFrame);
+  };
+
+  const flipCamera = async () => {
+    setFacingMode((prev) => (prev === "environment" ? "user" : "environment")); // 🔁 flip value
+  };
 
   useEffect(() => {
-    runModel();
-    return () => clearInterval(detectInterval); // Cleanup on unmount
+    (async () => {
+      await runModel();
+    })();
   }, []);
 
   useEffect(() => {
-    if (webcamRef.current?.video?.readyState === 4) {
-      webcamRef.current.video.width = webcamRef.current.video.videoWidth;
-      webcamRef.current.video.height = webcamRef.current.video.videoHeight;
-    }
-  }, [facingMode]);
+    (async () => {
+      await setupWebcam();
+      animationFrameRef.current = requestAnimationFrame(detectFrame);
+    })();
+
+    return () => {
+      cancelAnimationFrame(animationFrameRef.current);
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop());
+      }
+    };
+  }, [facingMode]); // 🔁 re-run when camera flips
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden">
+    <div className="relative w-screen h-screen bg-black">
       {isLoading ? (
-        <div className="text-center text-xl text-white mt-10">Loading AI Model...</div>
+        <div className="flex items-center justify-center h-full text-white">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mb-4"></div>
+          <div className="text-xl">Loading AI Model...</div>
+        </div>
+      ) : !modelLoaded ? (
+        <div className="flex items-center justify-center h-full text-white">
+          <div className="text-xl text-red-500">❌ Model Failed to Load</div>
+        </div>
       ) : (
         <>
-          <Webcam
-            ref={webcamRef}
-            videoConstraints={videoConstraints}
-            className="absolute top-0 left-0 w-full h-full object-cover"
+          <video
+            ref={videoRef}
+            className="absolute top-0 left-0 w-full h-full object-cover z-0"
+            playsInline
             muted
           />
           <canvas
             ref={canvasRef}
-            className="absolute top-0 left-0 w-full h-full z-10"
+            className="absolute top-0 left-0 z-10 w-full h-full"
           />
-          <button
-            onClick={toggleCamera}
-            className="absolute top-4 right-4 z-20 bg-black bg-opacity-50 text-black px-4 py-2 rounded-md hover:bg-opacity-70"
-          >
-            Flip Camera
-          </button>
+          <div className="absolute top-4 left-4 bg-black bg-opacity-60 p-3 rounded-md text-white z-20 space-y-2">
+            <div className="text-sm font-bold">Real-time Detections</div>
+            {detectionResults.slice(0, 3).map((det, i) => (
+              <div key={i} className="text-xs">
+                {det.className}: {(det.confidence * 100).toFixed(1)}%
+              </div>
+            ))}
+            <button
+              onClick={flipCamera}
+              className="mt-2 px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+            >
+              Flip Camera
+            </button>
+          </div>
         </>
       )}
     </div>
