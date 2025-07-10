@@ -514,15 +514,15 @@ export const renderPredictions = (outputTensor, ctx, canvasWidth, canvasHeight) 
 
     // Draw bounding box with thicker lines
     ctx.strokeStyle = color;
-    ctx.lineWidth = 4;
+    ctx.lineWidth = 2;
     ctx.strokeRect(clampedLeft, clampedTop, clampedWidth, clampedHeight);
 
     // Draw label background
     ctx.fillStyle = color;
-    ctx.font = "bold 16px Arial";
+    ctx.font = "bold 12px Arial";
     const textMetrics = ctx.measureText(label);
     const textWidth = textMetrics.width;
-    const textHeight = 20;
+    const textHeight = 18;
 
     const labelTop = clampedTop > 30 ? clampedTop - 30 : clampedTop + clampedHeight + 5;
 
