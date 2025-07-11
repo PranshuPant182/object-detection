@@ -1445,22 +1445,20 @@ const ObjectDetection = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [modelLoaded, setModelLoaded] = useState(false);
   const [detectionResults, setDetectionResults] = useState([]);
-  const [facingMode, setFacingMode] = useState("user"); // default: back camera
+  const [facingMode, setFacingMode] = useState("user"); // 🔁 default: back camera
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const modelRef = useRef(null);
   const animationFrameRef = useRef(null);
-  const streamRef = useRef(null); // 🔁 store current media stream
+  const streamRef = useRef(null);
 
   const runModel = async () => {
     try {
-      console.log("🔄 Loading model...");
       modelRef.current = await tf.loadGraphModel("/models/airplane/model.json");
-      console.log("📦 Model loaded successfully");
       setModelLoaded(true);
       setIsLoading(false);
     } catch (err) {
-      console.error("❌ Error loading model:", err);
+      console.error("Error loading model:", err);
       setIsLoading(false);
     }
   };
@@ -1473,7 +1471,7 @@ const ObjectDetection = () => {
 
     const stream = await navigator.mediaDevices.getUserMedia({
       video: {
-        facingMode: facingMode, // 🔁 dynamic facingMode
+        facingMode: facingMode, // dynamic facingMode
       },
       audio: false,
     });
@@ -1519,7 +1517,7 @@ const ObjectDetection = () => {
   };
 
   const flipCamera = async () => {
-    setFacingMode((prev) => (prev === "environment" ? "user" : "environment")); // flip value
+    setFacingMode((prev) => (prev === "environment" ? "user" : "environment")); // 🔁 flip value
   };
 
   useEffect(() => {
@@ -1540,7 +1538,7 @@ const ObjectDetection = () => {
         streamRef.current.getTracks().forEach((track) => track.stop());
       }
     };
-  }, [facingMode]); // re-run when camera flips
+  }, [facingMode]); //re-run when camera flips
 
   return (
     <div className="relative w-screen h-screen bg-black">
@@ -1567,14 +1565,9 @@ const ObjectDetection = () => {
           />
           <div className="absolute top-4 left-4 bg-black bg-opacity-60 p-3 rounded-md text-white z-20 space-y-2">
             <div className="text-sm font-bold">Real-time Detections</div>
-            {detectionResults.slice(0, 3).map((det, i) => (
-              <div key={i} className="text-xs">
-                {det.className}: {(det.confidence * 100).toFixed(1)}%
-              </div>
-            ))}
             <button
               onClick={flipCamera}
-              className="mt-2 px-4 py-2 bg-blue-600 text-black text-sm rounded hover:bg-blue-700"
+              className="mt-2 px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
             >
               Flip Camera
             </button>
