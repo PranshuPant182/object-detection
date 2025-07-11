@@ -1,0 +1,27 @@
+description: Ultralytics YOLO11n model trained on C:/Users/Zadmin/Downloads/YOLODataset_seg/dataset.yaml
+author: Ultralytics
+date: '2025-07-11T11:57:32.177829'
+version: 8.3.164
+license: AGPL-3.0 License (https://ultralytics.com/license)
+docs: https://docs.ultralytics.com
+stride: 32
+task: detect
+batch: 1
+imgsz:
+- 320
+- 320
+names:
+  0: Flight
+  1: Aerobridge Docked
+  2: Aerobridge Retracted
+  3: Catering Truck
+  4: Cargo And Baggage Truck
+  5: Cargo Door
+  6: Push Back Machine
+  7: Fuel Truck
+args:
+  batch: 1
+  half: false
+  int8: false
+  nms: true
+channels: 3

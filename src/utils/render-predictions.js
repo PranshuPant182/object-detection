@@ -1,27 +1,46 @@
+import * as tf from "@tensorflow/tfjs";
+
+const COCO_CLASSES = [
+  "Flight",
+  "Aerobridge Docked",
+  "Aerobridge Retracted",
+  "Cattering Truck",
+  "Cargo And Baggage Truck",
+  "Cargo Door",
+  "Push Back Machine",
+  "Fuel Truck"
+];
+
 export const renderPredictions = (predictions, ctx) => {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-  const font = "16px sans-serif";
-  ctx.font = font;
-  ctx.textBaseline = "top";
+  const boxColor = "#25e6bf";
 
   predictions.forEach((prediction) => {
-    const [x, y, width, height] = prediction["bbox"];
+    const [x, y, width, height] = prediction.bbox;
+    const text = `${prediction.class} ${(prediction.score * 100).toFixed(2)}%`;
 
-    // Draw bounding box
-    ctx.strokeStyle = "#00FFFF";
+    const clampedX = Math.max(0, x);
+    const clampedY = Math.max(0, y);
+    const clampedWidth = Math.min(width, ctx.canvas.width - clampedX);
+    const clampedHeight = Math.min(height, ctx.canvas.height - clampedY);
+
+    ctx.strokeStyle = boxColor;
     ctx.lineWidth = 2;
-    ctx.strokeRect(x, y, width, height);
+    ctx.strokeRect(clampedX, clampedY, clampedWidth, clampedHeight);
 
-    // Draw label background
-    ctx.fillStyle = "#00FFFF";
-    const text = prediction.class;
-    const textWidth = ctx.measureText(text).width;
-    const textHeight = parseInt(font, 10);
-    ctx.fillRect(x, y, textWidth + 4, textHeight + 4);
+    ctx.fillStyle = boxColor;
+    ctx.font = "bold 10px Arial";
+    const textMetrics = ctx.measureText(text);
+    const textWidth = textMetrics.width;
+    const textHeight = 18;
 
-    // Draw label text
+    const labelTop = clampedY > 30 ? clampedY - 30 : clampedY + clampedHeight + 5;
+
+    ctx.fillRect(clampedX, labelTop, textWidth + 10, textHeight + 6);
+
     ctx.fillStyle = "#000000";
-    ctx.fillText(text, x, y);
+    ctx.fillText(text, clampedX + 5, labelTop + textHeight);
   });
 };
+
