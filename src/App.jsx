@@ -199,6 +199,6 @@ const ObjectDetection = () => {
       )}
     </div>
   );
-};
+
 
 export default ObjectDetection;
