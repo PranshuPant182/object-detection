@@ -352,9 +352,9 @@ const COCO_CLASSES = [
   "Aerobridge Retracted",
   "Cattering Truck",
   "Flight",
+  "Cargo And Baggage Truck",
   "Cargo Door",
   "Push Back Machine",
-  "Cargo And Baggage Truck",
 ];
 
 
