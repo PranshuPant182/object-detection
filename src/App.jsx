@@ -1445,7 +1445,7 @@ const ObjectDetection = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [modelLoaded, setModelLoaded] = useState(false);
   const [detectionResults, setDetectionResults] = useState([]);
-  const [facingMode, setFacingMode] = useState("user"); // 🔁 default: back camera
+  const [facingMode, setFacingMode] = useState("user"); // default: back camera
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const modelRef = useRef(null);
@@ -1519,7 +1519,7 @@ const ObjectDetection = () => {
   };
 
   const flipCamera = async () => {
-    setFacingMode((prev) => (prev === "environment" ? "user" : "environment")); // 🔁 flip value
+    setFacingMode((prev) => (prev === "environment" ? "user" : "environment")); // flip value
   };
 
   useEffect(() => {
@@ -1540,7 +1540,7 @@ const ObjectDetection = () => {
         streamRef.current.getTracks().forEach((track) => track.stop());
       }
     };
-  }, [facingMode]); // 🔁 re-run when camera flips
+  }, [facingMode]); // re-run when camera flips
 
   return (
     <div className="relative w-screen h-screen bg-black">
@@ -1574,7 +1574,7 @@ const ObjectDetection = () => {
             ))}
             <button
               onClick={flipCamera}
-              className="mt-2 px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+              className="mt-2 px-4 py-2 bg-blue-600 text-black text-sm rounded hover:bg-blue-700"
             >
               Flip Camera
             </button>
