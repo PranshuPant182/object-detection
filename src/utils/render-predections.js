@@ -363,7 +363,7 @@ export const renderPredictions = (outputTensor, ctx, canvasWidth, canvasHeight) 
   const predictions = tf.tensor(outputArray[0]).transpose().arraySync(); // [2100, 12]
 
   // Adjusted confidence threshold - try lower values first
-  const confidenceThreshold = 0.65; // Lowered from 0.0 to 0.01
+  const confidenceThreshold = 0.6; // Lowered from 0.0 to 0.01
   const modelInputSize = 320;
 
   const detectedObjects = [];
