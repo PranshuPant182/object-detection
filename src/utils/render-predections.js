@@ -1,4 +1,4 @@
-WORKING CODE FOR EYE ON RAMP 360
+// WORKING CODE FOR EYE ON RAMP 360
 import * as tf from "@tensorflow/tfjs";
 
 const COCO_CLASSES = [
