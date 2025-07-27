@@ -22,6 +22,7 @@ export const renderPredictions = (outputTensor, ctx, canvasWidth, canvasHeight) 
   const modelInputSize = 320;
 
   const detectedObjects = [];
+  
 
   // console.log("🔍 Total Raw Predictions:", predictions.length);
   // console.log("🎯 Confidence Threshold:", confidenceThreshold);
