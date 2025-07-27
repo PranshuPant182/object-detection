@@ -1,222 +1,69 @@
 @import "tailwindcss";
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
 
-.dashboard-Img {
-    background-image: url('../src/assets/Dashboard.png');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Chrome, Edge, Safari */
-.custom-scroll::-webkit-scrollbar {
-    width: 5px;
-    height: 5px;
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
 }
 
-.custom-scroll::-webkit-scrollbar-track {
-    background: #128ca78c;
-    border-radius: 10px;
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
 }
 
-.custom-scroll::-webkit-scrollbar-thumb {
-    background-color: #08E9FC;
-    border-radius: 10px;
-    border: none;
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
 }
 
-.custom-scroll::-webkit-scrollbar-button {
-    display: none;
-    height: 0;
-    width: 0;
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
 }
 
-
-
-@font-face {
-    font-family: 'poppins';
-    src: url('/fonts/Poppins-Regular.ttf') format('truetype');
-    font-style: normal;
-    font-weight: 900;
-}
-
-@font-face {
-    font-family: 'poppins-semiBold';
-    src: url('/fonts/Poppins-Medium.ttf') format('truetype');
-    font-style: normal;
-}
-
-.status-COMPLETED-shift-zoomout {
-    margin-left: -1.4rem;
-    margin-right: 1rem;
-    font-size: 10px;
-}
-
-.status-INPROGRESS-shift-zoomout {
-    margin-left: -1.5rem;
-    margin-right: 1rem;
-    font-size: 12px;
-}
-
-.status-pending-shift-zoomout {
-    margin-left: -1.9rem;
-    margin-right: 1rem;
-    font-size: 12px;
-}
-
-
-/* Tailwind `lg` = 1024px */
-@media (min-width: 1024px) {
-    .status-COMPLETED-shift-zoomout {
-        margin-left: -1.4rem;
-        margin-right: 1rem;
-        font-size: 10px;
-    }
-
-    .status-INPROGRESS-shift-zoomout {
-        margin-left: -1.4rem;
-        margin-right: 1rem;
-        font-size: 10px;
-    }
-
-    .status-pending-shift-zoomout {
-        margin-left: -1.6rem;
-        margin-right: 1rem;
-        font-size: 12px;
-    }
-}
-
-/* Tailwind `xl` = 1280px */
-@media (min-width: 1280px) {
-    .status-COMPLETED-shift-zoomout {
-        margin-right: 1.4rem;
-        font-size: 12px;
-    }
-
-    .status-INPROGRESS-shift-zoomout {
-        margin-right: 1.0rem;
-        font-size: 12px;
-    }
-
-    .status-pending-shift-zoomout {
-        margin-right: 2.0rem;
-        font-size: 12px;
-    }
-}
-
-/* Tailwind `2xl` = 1536px */
-@media (min-width: 1536px) {
-
-    .status-COMPLETED-shift-zoomout {
-        margin-left: -1.5rem;
-        margin-right: 1rem;
-        font-size: 13px;
-    }
-
-    .status-INPROGRESS-shift-zoomout {
-        margin-left: -1.5rem;
-        margin-right: 1rem;
-        font-size: 13px;
-    }
-
-    .status-pending-shift-zoomout {
-        margin-left: -1.9rem;
-        margin-right: 1rem;
-        font-size: 14px;
-    }
-}
-
-@media (min-width: 1600px) {
-
-    .status-COMPLETED-shift-zoomout {
-        margin-left: -1.6rem;
-        font-size: 14px;
-    }
-
-    .status-INPROGRESS-shift-zoomout {
-        margin-left: -1.5rem;
-        font-size: 14px;
-    }
-
-    .status-pending-shift-zoomout {
-        margin-left: -2.0rem;
-        font-size: 15px;
-    }
-}
-
-/* Custom breakpoint: 1920px */
-@media (min-width: 1920px) {
-    .status-COMPLETED-shift-zoomout {
-        margin-left: -2rem;
-        font-size: 15px;
-    }
-
-    .status-INPROGRESS-shift-zoomout {
-        margin-left: -1.9rem;
-        font-size: 15px;
-    }
-
-    .status-pending-shift-zoomout {
-        margin-left: -2.6rem;
-        font-size: 16px;
-    }
-}
-
-
-
-
-/* Add this to your CSS file */
-.react-datepicker-wrapper {
-    width: auto !important;
-}
-
-.react-datepicker {
-    background-color: #1e1e1e !important;
-    border: 1px solid #00ffff !important;
-    border-radius: 8px !important;
-    color: white !important;
-}
-
-.react-datepicker__header {
-    background-color: #069aa0 !important;
-    border-bottom: 1px solid #00ffff !important;
-    color: white !important;
-}
-
-.react-datepicker__current-month {
-    color: white !important;
-}
-
-.react-datepicker__day-name {
-    color: white !important;
-}
-
-.react-datepicker__day {
-    color: white !important;
-}
-
-.react-datepicker__day:hover {
-    background-color: #069aa0 !important;
-    color: white !important;
-}
-
-.react-datepicker__day--selected {
-    background-color: #00ffff !important;
-    color: black !important;
-}
-
-.react-datepicker__day--today {
-    background-color: #252423 !important;
-    color: white !important;
-}
-
-.react-datepicker__navigation {
-    border: none !important;
-}
-
-.react-datepicker__navigation--previous {
-    border-right-color: white !important;
-}
-
-.react-datepicker__navigation--next {
-    border-left-color: white !important;
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
 }
