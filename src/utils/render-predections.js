@@ -9,6 +9,7 @@ const COCO_CLASSES = [
   "Cargo And Baggage Truck",
   "Cargo Door",
   "Push Back Machine",
+  "Yellow Line"
 ];
 
 
